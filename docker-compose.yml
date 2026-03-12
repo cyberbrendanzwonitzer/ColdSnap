@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cryochamber-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cryochamber
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - cryochamber-pgdata:/var/lib/postgresql/data
+
+volumes:
+  cryochamber-pgdata:

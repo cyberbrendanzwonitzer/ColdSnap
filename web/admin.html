@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryoChamber Admin | Appointments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+  <script defer src="admin.js"></script>
+</head>
+<body>
+  <header class="admin-header">
+    <div class="admin-title-wrap">
+      <img class="admin-logo" src="assets/coldsnap-logo.jpg" alt="ColdSnap logo" />
+      <div>
+      <p class="eyebrow">Operations Dashboard</p>
+      <h1>CryoChamber Appointments</h1>
+      <p class="subtitle">Track booked appointments, waiver status, and booking source activity.</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="refresh-btn" type="button">Refresh</button>
+      <a href="/">View Main Site</a>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <section class="stats-grid" aria-label="Summary metrics">
+      <article>
+        <h2>Total Bookings</h2>
+        <p id="stat-total">0</p>
+      </article>
+      <article>
+        <h2>Confirmed</h2>
+        <p id="stat-confirmed">0</p>
+      </article>
+      <article>
+        <h2>Pending Waiver</h2>
+        <p id="stat-pending">0</p>
+      </article>
+      <article>
+        <h2>Total Leads</h2>
+        <p id="stat-leads">0</p>
+      </article>
+    </section>
+
+    <section class="controls" aria-label="Filter controls">
+      <label>
+        Status
+        <select id="status-filter">
+          <option value="all">All</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="pending_waiver">Pending Waiver</option>
+        </select>
+      </label>
+      <label>
+        Search Name or Email
+        <input id="search-filter" type="text" placeholder="Type to filter" />
+      </label>
+    </section>
+
+    <section class="table-wrap" aria-label="Booked appointments table">
+      <div class="table-meta">
+        <p id="table-count">0 appointments</p>
+        <p id="status-message" class="status-message">Loading...</p>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Preferred Time</th>
+              <th>Customer</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Service</th>
+              <th>Status</th>
+              <th>Provider</th>
+              <th>Reference</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

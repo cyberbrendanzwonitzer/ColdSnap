@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryoChamber | Snap Into Peak Performance</title>
+  <meta name="description" content="CryoChamber delivers premium whole body cryotherapy, localized cryo, and red light therapy in DFW." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="ColdSnap Home">
+      <img class="brand-logo" src="assets/coldsnap-logo.jpg" alt="ColdSnap logo" />
+      <span class="brand-name">ColdSnap</span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#services">Services</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#first-timers">First Timers</a>
+      <a href="#about">About</a>
+    </nav>
+    <a class="cta-book" href="#book">Book Now</a>
+  </header>
+
+  <main>
+    <section class="hero" id="book">
+      <div class="hero-video-layer" aria-hidden="true"></div>
+      <div class="hero-content">
+        <p class="eyebrow">DFW'S PREMIER COLD THERAPY STUDIO</p>
+        <h1>Snap Into Peak Performance.</h1>
+        <p class="hero-copy">Three minutes to total recovery. Professional-grade cryotherapy built for athletes, high performers, and everyday wellness.</p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="#pricing">Claim First Freeze Special</a>
+          <a class="btn-secondary" href="#first-timers">What To Expect</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="pillars" id="services">
+      <h2>The Three Pillars</h2>
+      <div class="pillar-grid">
+        <article class="pillar-card">
+          <h3>Recover</h3>
+          <p>Accelerate post-workout recovery and reduce muscle soreness with precision cold exposure.</p>
+        </article>
+        <article class="pillar-card">
+          <h3>Revive</h3>
+          <p>Boost circulation and energy while supporting skin tone and whole-body vitality.</p>
+        </article>
+        <article class="pillar-card">
+          <h3>Relieve</h3>
+          <p>Target discomfort from chronic pain and inflammation with tailored cryotherapy sessions.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="chamber-section" id="first-timers">
+      <div>
+        <p class="eyebrow">HOW IT WORKS</p>
+        <h2>Interactive Chamber Safety View</h2>
+        <p>Hover each marker to see how we keep your session controlled, monitored, and comfortable from start to finish.</p>
+      </div>
+      <div class="chamber-diagram" role="img" aria-label="Cryotherapy chamber safety feature diagram">
+        <div class="chamber-core"></div>
+        <button class="hotspot" data-target="sensor" style="top: 22%; left: 64%;">1</button>
+        <button class="hotspot" data-target="oxygen" style="top: 54%; left: 70%;">2</button>
+        <button class="hotspot" data-target="operator" style="top: 76%; left: 36%;">3</button>
+      </div>
+      <div class="hotspot-details" aria-live="polite">
+        <article data-panel="sensor" class="active">
+          <h3>Thermal Sensors</h3>
+          <p>Continuous temperature tracking keeps exposure within predefined treatment thresholds.</p>
+        </article>
+        <article data-panel="oxygen">
+          <h3>Oxygen Monitor</h3>
+          <p>Real-time oxygen sensors protect indoor air quality and trigger alerts if levels drift.</p>
+        </article>
+        <article data-panel="operator">
+          <h3>Live Technician Oversight</h3>
+          <p>Certified staff monitor every session and can stop treatment immediately if needed.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="social-proof">
+      <p>Trusted by 500+ local members and athletes from top DFW training facilities.</p>
+      <div class="logo-strip" aria-label="Partner logos">
+        <span>Northside Barbell</span>
+        <span>Metro Run Club</span>
+        <span>LoneStar FC</span>
+        <span>Apex Performance</span>
+      </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+      <h2>Simple Pricing</h2>
+      <div class="pricing-grid">
+        <article>
+          <h3>First Freeze Special</h3>
+          <p class="price">$39</p>
+          <p>1 Whole Body Cryo Session + Onboarding</p>
+          <a class="btn-book-inline" href="#booking-intake">Book Intro Session</a>
+        </article>
+        <article>
+          <h3>Performance Membership</h3>
+          <p class="price">$149/mo</p>
+          <p>4 Sessions Monthly + Priority Booking</p>
+          <a class="btn-book-inline" href="#booking-intake">Book Membership Consult</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="booking-intake" id="booking-intake">
+      <article class="booking-panel">
+        <p class="eyebrow">BOOKING INTAKE</p>
+        <h2>Reserve Your Session</h2>
+        <p>Submit your preferred service and time. We capture your lead in CRM immediately and queue your booking for waiver verification.</p>
+        <form id="booking-form" class="booking-form">
+          <label>
+            First Name
+            <input type="text" name="firstName" required />
+          </label>
+          <label>
+            Last Name
+            <input type="text" name="lastName" required />
+          </label>
+          <label class="full">
+            Email
+            <input type="email" name="email" required />
+          </label>
+          <label class="full">
+            Phone
+            <input type="tel" name="phone" placeholder="(555) 555-5555" />
+          </label>
+          <label>
+            Service
+            <select name="serviceCode" required>
+              <option value="">Choose one</option>
+              <option value="whole-body-cryo">Whole Body Cryo</option>
+              <option value="localized-cryo">Localized Cryo</option>
+              <option value="red-light-therapy">Red Light Therapy</option>
+            </select>
+          </label>
+          <label>
+            Preferred Time
+            <input type="datetime-local" name="preferredDateTime" required />
+          </label>
+          <label class="full checkbox-row">
+            <input type="checkbox" name="waiverAccepted" required />
+            <span>I acknowledge waiver completion is required before treatment.</span>
+          </label>
+          <button class="full" type="submit">Create Booking Intent</button>
+          <p class="form-message full" id="booking-message"></p>
+        </form>
+      </article>
+      <article class="waiver-panel">
+        <h3>Complete Digital Waiver</h3>
+        <p>Already reserved? Sign now and any pending booking is auto-confirmed.</p>
+        <form id="waiver-form" class="waiver-form">
+          <label>
+            Email
+            <input type="email" name="email" required />
+          </label>
+          <label>
+            Signature Name
+            <input type="text" name="signatureName" required />
+          </label>
+          <label>
+            Waiver Version
+            <select name="waiverVersion">
+              <option value="v1" selected>v1</option>
+            </select>
+          </label>
+          <button type="submit">Sign Waiver</button>
+          <p class="form-message" id="waiver-message"></p>
+        </form>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="about">
+    <div>
+      <div class="footer-brand">
+        <img class="footer-logo" src="assets/coldsnap-logo.jpg" alt="ColdSnap logo" />
+        <h3>ColdSnap</h3>
+      </div>
+      <p>1234 Victory Lane, Dallas, TX</p>
+      <p>Mon-Fri 7am-8pm | Sat-Sun 9am-5pm</p>
+      <p>(214) 555-0199</p>
+    </div>
+    <form class="newsletter" id="newsletter-form">
+      <h3>ColdSnap Alerts</h3>
+      <p>Get offers, recovery tips, and member-only events.</p>
+      <label for="newsletter-email">Email</label>
+      <input id="newsletter-email" name="email" type="email" required placeholder="you@example.com" />
+      <button type="submit">Subscribe</button>
+      <p class="form-message" id="form-message"></p>
+    </form>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

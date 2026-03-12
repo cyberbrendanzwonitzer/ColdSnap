@@ -1,0 +1,250 @@
+:root {
+  --ink: #06243a;
+  --ink-soft: #43657f;
+  --bg: #eef5fb;
+  --card: #ffffff;
+  --line: rgba(6, 36, 58, 0.12);
+  --accent: #00c2ff;
+  --good: #0f8a5a;
+  --warn: #a66c00;
+  --bad: #c23838;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Sora", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 5% -10%, #d8eeff 0%, transparent 35%),
+    radial-gradient(circle at 85% 5%, #dffaff 0%, transparent 30%),
+    var(--bg);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.admin-header {
+  padding: 1.25rem 4vw;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+}
+
+.admin-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-logo {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 0;
+  box-shadow: 0 8px 20px rgba(5, 80, 117, 0.28);
+}
+
+.eyebrow {
+  margin: 0;
+  color: #0076a9;
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0.4rem 0 0;
+  color: var(--ink-soft);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.header-actions button,
+.header-actions a {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 700;
+}
+
+.header-actions button {
+  background: linear-gradient(165deg, #8de7ff, var(--accent));
+  color: #00111d;
+  cursor: pointer;
+}
+
+.header-actions a {
+  background: #e4f4fb;
+  color: #035b82;
+}
+
+.admin-main {
+  width: min(1300px, 94vw);
+  margin: 1.5rem auto 2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.stats-grid article {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.9rem;
+}
+
+.stats-grid p {
+  margin: 0.25rem 0 0;
+  font-size: 1.8rem;
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  color: #0a6f9a;
+}
+
+.controls {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.9rem;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 0.7rem;
+}
+
+.controls label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.controls input,
+.controls select {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+}
+
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.9rem;
+}
+
+.table-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.table-meta p {
+  margin: 0 0 0.7rem;
+}
+
+.status-message {
+  color: #0a6f9a;
+}
+
+.status-message.error {
+  color: var(--bad);
+}
+
+.table-scroll {
+  overflow: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 980px;
+}
+
+thead th {
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--line);
+  padding: 0.6rem 0.5rem;
+  white-space: nowrap;
+}
+
+tbody td {
+  border-bottom: 1px solid rgba(6, 36, 58, 0.07);
+  padding: 0.6rem 0.5rem;
+  font-size: 0.92rem;
+  vertical-align: top;
+}
+
+.empty-row {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.badge {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.badge-confirmed {
+  color: #09573a;
+  background: #dcf7ec;
+}
+
+.badge-pending_waiver {
+  color: #7b4f00;
+  background: #ffeecf;
+}
+
+.badge-unknown {
+  color: #6b1f1f;
+  background: #f7e1e1;
+}
+
+@media (max-width: 980px) {
+  .admin-header {
+    flex-direction: column;
+  }
+
+  .admin-title-wrap {
+    align-items: flex-start;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .controls {
+    grid-template-columns: 1fr;
+  }
+}

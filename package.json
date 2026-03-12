@@ -1,0 +1,21 @@
+{
+  "name": "cryochamber",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CryoChamber website with booking and CRM API",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "node --watch server/app.js",
+    "migrate": "node server/migrate.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "pg": "^8.12.0"
+  }
+}
