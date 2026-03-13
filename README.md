@@ -40,16 +40,22 @@ The API includes an automatic reminder worker that sends one reminder per confir
 
 1. Choose provider in `.env`:
 	- `REMINDER_PROVIDER=mock` for local testing (logs only)
+	- `REMINDER_PROVIDER=gmail` to send from a Gmail account
 	- `REMINDER_PROVIDER=resend` for live email delivery
 2. Set scheduling:
 	- `REMINDER_LEAD_MINUTES=0` sends right after booking confirmation
 	- Set `1440` for a 24-hour reminder, `120` for 2 hours, etc.
-3. For live sending, configure:
+3. For Gmail sending, configure:
+	- `ALLOW_OUTBOUND_INTEGRATIONS=true`
+	- `GMAIL_USER=liquidbom@gmail.com`
+	- `GMAIL_APP_PASSWORD=<16-char app password from Google Account>`
+	- Optional: `REMINDER_FROM_NAME` (from email uses `GMAIL_USER`)
+4. For Resend sending, configure:
 	- `ALLOW_OUTBOUND_INTEGRATIONS=true`
 	- `RESEND_API_KEY=<your_resend_api_key>`
 	- `REMINDER_FROM_EMAIL=<verified_sender@yourdomain.com>`
 	- Optional: `REMINDER_FROM_NAME` and `REMINDER_TIMEZONE`
-4. Deploy/restart the API.
+5. Deploy/restart the API.
 
 Verify with:
 

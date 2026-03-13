@@ -37,6 +37,8 @@ module.exports = {
   reminderTimezone: process.env.REMINDER_TIMEZONE || "America/New_York",
   reminderFromEmail: process.env.REMINDER_FROM_EMAIL || "",
   reminderFromName: process.env.REMINDER_FROM_NAME || "CryoChamber",
+  gmailUser: process.env.GMAIL_USER || "",
+  gmailAppPassword: process.env.GMAIL_APP_PASSWORD || "",
   resendApiKey: process.env.RESEND_API_KEY || "",
   dataFilePath: path.resolve(rootDir, process.env.DATA_FILE || "data/runtime.json")
 };
