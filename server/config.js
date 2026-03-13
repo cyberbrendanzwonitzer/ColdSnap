@@ -44,7 +44,6 @@ module.exports = {
   gmailHost: process.env.GMAIL_HOST || "smtp.gmail.com",
   gmailPort: toNumber(process.env.GMAIL_PORT || "465", 465),
   gmailSecure: toBool(process.env.GMAIL_SECURE, true),
-  gmailPreferIpv4: toBool(process.env.GMAIL_PREFER_IPV4, true),
   gmailConnectionTimeoutMs: toNumber(process.env.GMAIL_CONNECTION_TIMEOUT_MS || "20000", 20000),
   gmailGreetingTimeoutMs: toNumber(process.env.GMAIL_GREETING_TIMEOUT_MS || "15000", 15000),
   gmailSocketTimeoutMs: toNumber(process.env.GMAIL_SOCKET_TIMEOUT_MS || "30000", 30000),

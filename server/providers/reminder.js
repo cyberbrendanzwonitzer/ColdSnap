@@ -112,14 +112,12 @@ function createGmailReminderClient(config) {
     return createMockReminderClient("gmail-fallback", "Missing GMAIL_USER/GMAIL_APP_PASSWORD or outbound disabled");
   }
 
-  if (config.gmailPreferIpv4) {
-    try {
-      dns.setDefaultResultOrder("ipv4first");
-      traceLog(config, "gmail.dns_ipv4first_enabled", {});
-    } catch (_error) {
-      // Keep running even if runtime does not support this DNS option.
-      traceLog(config, "gmail.dns_ipv4first_unavailable", {});
-    }
+  try {
+    dns.setDefaultResultOrder("ipv4first");
+    traceLog(config, "gmail.dns_ipv4first_enabled", {});
+  } catch (_error) {
+    // Keep running even if runtime does not support this DNS option.
+    traceLog(config, "gmail.dns_ipv4first_unavailable", {});
   }
 
   const resendFallbackClient = config.reminderFallbackProvider === "resend"
@@ -134,7 +132,7 @@ function createGmailReminderClient(config) {
     connectionTimeout: config.gmailConnectionTimeoutMs,
     greetingTimeout: config.gmailGreetingTimeoutMs,
     socketTimeout: config.gmailSocketTimeoutMs,
-    family: config.gmailPreferIpv4 ? 4 : 0,
+    family: 4,
     auth: {
       user: config.gmailUser,
       pass: config.gmailAppPassword
@@ -145,7 +143,7 @@ function createGmailReminderClient(config) {
     host: config.gmailHost,
     port: config.gmailPort,
     secure: config.gmailSecure,
-    family: config.gmailPreferIpv4 ? 4 : 0,
+    family: 4,
     fallbackProvider: config.reminderFallbackProvider || "none"
   });
 

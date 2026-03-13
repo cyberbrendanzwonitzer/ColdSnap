@@ -51,10 +51,10 @@ The API includes an automatic reminder worker that sends one reminder per confir
 	- `GMAIL_USER=liquidbom@gmail.com`
 	- `GMAIL_APP_PASSWORD=<16-char app password from Google Account>`
 	- Optional: `REMINDER_FROM_NAME` (from email uses `GMAIL_USER`)
-	- Optional network hardening:
-		- `GMAIL_PREFER_IPV4=true`
+	- Network settings:
+		- Gmail transport is forced to IPv4 in code
 		- `GMAIL_PORT=465` and `GMAIL_SECURE=true` (or `587` + `false`)
-		- `NODE_OPTIONS=--dns-result-order=ipv4first` (recommended on some hosted environments)
+		- Optional: `NODE_OPTIONS=--dns-result-order=ipv4first`
 4. For Resend sending, configure:
 	- `ALLOW_OUTBOUND_INTEGRATIONS=true`
 	- `RESEND_API_KEY=<your_resend_api_key>`
