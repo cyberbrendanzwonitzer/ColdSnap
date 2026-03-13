@@ -3,6 +3,7 @@ const config = require("../config");
 const { withStore, getStoreSnapshot } = require("../storage");
 const { createCrmClient } = require("../providers/crm");
 const { createBookingClient } = require("../providers/booking");
+const { triggerReminderCheck } = require("./reminders");
 
 class HttpError extends Error {
   constructor(status, message) {
@@ -174,7 +175,7 @@ async function createBookingIntent(payload) {
     throw new HttpError(400, "Waiver acknowledgement is required");
   }
 
-  return withStore(async (store) => {
+  const result = await withStore(async (store) => {
     const lead = upsertLead(store, {
       firstName,
       lastName,
@@ -229,6 +230,12 @@ async function createBookingIntent(payload) {
       crmProvider: crmResult.provider
     };
   });
+
+  if (result.status === "confirmed") {
+    triggerReminderCheck();
+  }
+
+  return result;
 }
 
 async function signWaiver(payload) {
@@ -236,7 +243,7 @@ async function signWaiver(payload) {
   const signatureName = requireText(payload.signatureName, "signatureName");
   const waiverVersion = String(payload.waiverVersion || "v1").trim() || "v1";
 
-  return withStore(async (store) => {
+  const result = await withStore(async (store) => {
     const lead = upsertLead(store, {
       firstName: payload.firstName,
       lastName: payload.lastName,
@@ -291,6 +298,12 @@ async function signWaiver(payload) {
       crmProvider: crmResult.provider
     };
   });
+
+  if (result.confirmedBookings > 0) {
+    triggerReminderCheck();
+  }
+
+  return result;
 }
 
 async function getAdminSnapshot() {

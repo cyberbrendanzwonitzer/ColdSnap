@@ -8,6 +8,7 @@ router.get("/", (_req, res) => {
     ok: true,
     service: "cryochamber-api",
     dataMode: config.dataMode,
+    reminderProvider: config.reminderProvider,
     timestamp: new Date().toISOString()
   });
 });

@@ -34,6 +34,31 @@ The frontend is served by the API host so newsletter, booking, and waiver flows 
 
 If you prefer local JSON persistence for quick prototypes, set `DATA_MODE=file` in `.env`.
 
+## Booking Reminder Setup
+
+The API includes an automatic reminder worker that sends one reminder per confirmed booking.
+
+1. Choose provider in `.env`:
+	- `REMINDER_PROVIDER=mock` for local testing (logs only)
+	- `REMINDER_PROVIDER=resend` for live email delivery
+2. Set scheduling:
+	- `REMINDER_LEAD_MINUTES=0` sends right after booking confirmation
+	- Set `1440` for a 24-hour reminder, `120` for 2 hours, etc.
+3. For live sending, configure:
+	- `ALLOW_OUTBOUND_INTEGRATIONS=true`
+	- `RESEND_API_KEY=<your_resend_api_key>`
+	- `REMINDER_FROM_EMAIL=<verified_sender@yourdomain.com>`
+	- Optional: `REMINDER_FROM_NAME` and `REMINDER_TIMEZONE`
+4. Deploy/restart the API.
+
+Verify with:
+
+```powershell
+Invoke-RestMethod -Uri "https://your-main-api-domain/api/health"
+```
+
+Look for `"reminderProvider":"resend"` in the response.
+
 ## Notes
 
 - The design intentionally uses a cool, energetic visual language that matches cryotherapy branding.

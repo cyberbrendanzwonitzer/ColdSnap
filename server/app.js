@@ -12,6 +12,7 @@ const waiversRouter = require("./routes/waivers");
 const adminRouter = require("./routes/admin");
 const { HttpError } = require("./services/operations");
 const { ensureStorageReady } = require("./storage");
+const { startReminderWorker } = require("./services/reminders");
 
 const app = express();
 
@@ -52,10 +53,11 @@ app.use((error, _req, res, _next) => {
 
 async function start() {
   await ensureStorageReady();
+  startReminderWorker();
 
   app.listen(config.port, () => {
     console.log(`CryoChamber API running on http://localhost:${config.port}`);
-    console.log(`Data mode: ${config.dataMode} | CRM provider: ${config.crmProvider} | Booking provider: ${config.bookingProvider}`);
+    console.log(`Data mode: ${config.dataMode} | CRM provider: ${config.crmProvider} | Booking provider: ${config.bookingProvider} | Reminder provider: ${config.reminderProvider}`);
   });
 }
 
