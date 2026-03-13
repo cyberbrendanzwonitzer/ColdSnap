@@ -50,11 +50,17 @@ function buildReminderMessage(payload, config) {
   const readableTime = formatDateForReminder(payload.booking.preferredDateTime, config.reminderTimezone);
   const serviceName = formatServiceName(payload.booking.serviceCode);
   const customerName = payload.customerName || "there";
-  const subject = `CryoChamber reminder: your ${serviceName} booking`;
+  const isImmediate = config.reminderLeadMinutes === 0;
+  const subject = isImmediate
+    ? `Booking confirmed: your ${serviceName} session at CryoChamber`
+    : `CryoChamber reminder: your ${serviceName} booking on ${readableTime}`;
+  const intro = isImmediate
+    ? `Your ${serviceName} session at CryoChamber has been confirmed for ${readableTime}.`
+    : `This is a reminder for your upcoming ${serviceName} session at CryoChamber on ${readableTime}.`;
   const text = [
     `Hi ${customerName},`,
     "",
-    `This is your reminder for your ${serviceName} booking at CryoChamber on ${readableTime}.`,
+    intro,
     "",
     "If you need to reschedule, please reply to this email or contact our front desk.",
     "",
@@ -63,7 +69,7 @@ function buildReminderMessage(payload, config) {
 
   const html = [
     `<p>Hi ${customerName},</p>`,
-    `<p>This is your reminder for your <strong>${serviceName}</strong> booking at CryoChamber on <strong>${readableTime}</strong>.</p>`,
+    `<p>${intro}</p>`,
     "<p>If you need to reschedule, please reply to this email or contact our front desk.</p>",
     "<p>- CryoChamber</p>"
   ].join("");

@@ -17,9 +17,15 @@ function addEvent(store, type, payload) {
   });
 }
 
-function getSendAtMs(preferredDateTime, nowMs) {
-  const bookingMs = new Date(preferredDateTime).getTime();
+// REMINDER_LEAD_MINUTES=0  → send immediately when booking is confirmed (based on createdAt)
+// REMINDER_LEAD_MINUTES>0  → send X minutes before the appointment
+function getSendAtMs(booking, nowMs) {
+  if (config.reminderLeadMinutes === 0) {
+    const createdMs = new Date(booking.createdAt).getTime();
+    return Number.isFinite(createdMs) ? createdMs : nowMs;
+  }
 
+  const bookingMs = new Date(booking.preferredDateTime).getTime();
   if (!Number.isFinite(bookingMs)) {
     return nowMs;
   }
@@ -88,7 +94,7 @@ async function processDueReminders() {
           continue;
         }
 
-        const sendAtMs = getSendAtMs(booking.preferredDateTime, nowMs);
+        const sendAtMs = getSendAtMs(booking, nowMs);
         if (nowMs < sendAtMs) {
           continue;
         }
