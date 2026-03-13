@@ -139,12 +139,30 @@ function createGmailReminderClient(config) {
     }
   });
 
+  const alternateTransporter = (config.gmailPort === 587 && config.gmailSecure === false)
+    ? null
+    : nodemailer.createTransport({
+      host: config.gmailHost,
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      connectionTimeout: config.gmailConnectionTimeoutMs,
+      greetingTimeout: config.gmailGreetingTimeoutMs,
+      socketTimeout: config.gmailSocketTimeoutMs,
+      family: 4,
+      auth: {
+        user: config.gmailUser,
+        pass: config.gmailAppPassword
+      }
+    });
+
   traceLog(config, "gmail.transport_created", {
     host: config.gmailHost,
     port: config.gmailPort,
     secure: config.gmailSecure,
     family: 4,
-    fallbackProvider: config.reminderFallbackProvider || "none"
+    fallbackProvider: config.reminderFallbackProvider || "none",
+    hasAlternate587: Boolean(alternateTransporter)
   });
 
   return {
@@ -179,6 +197,42 @@ function createGmailReminderClient(config) {
           toEmail: payload.toEmail,
           message: error.message
         });
+
+        if (alternateTransporter && shouldFallbackToResend(error)) {
+          traceLog(config, "gmail.alternate_587_attempt", {
+            bookingId: payload.booking.id,
+            toEmail: payload.toEmail
+          });
+
+          try {
+            const altResult = await alternateTransporter.sendMail({
+              from: `${config.reminderFromName} <${config.gmailUser}>`,
+              to: payload.toEmail,
+              subject: message.subject,
+              text: message.text,
+              html: message.html
+            });
+
+            traceLog(config, "gmail.alternate_587_success", {
+              bookingId: payload.booking.id,
+              toEmail: payload.toEmail,
+              messageId: altResult.messageId || ""
+            });
+
+            return {
+              accepted: true,
+              provider: "gmail-587-fallback",
+              reason: `gmail primary failed: ${error.message}`,
+              messageId: altResult.messageId || ""
+            };
+          } catch (altError) {
+            traceLog(config, "gmail.alternate_587_failed", {
+              bookingId: payload.booking.id,
+              toEmail: payload.toEmail,
+              message: altError.message
+            });
+          }
+        }
 
         if (resendFallbackClient && shouldFallbackToResend(error)) {
           traceLog(config, "gmail.fallback_resend_attempt", {
