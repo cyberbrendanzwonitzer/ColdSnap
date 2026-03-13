@@ -321,6 +321,17 @@ async function getAdminSnapshot() {
   };
 }
 
+function resolveEmailStatus(store, bookingId) {
+  let status = "pending";
+  for (const event of store.events) {
+    if (!event.payload || event.payload.bookingId !== bookingId) continue;
+    if (event.type === "reminder.sent") status = "sent";
+    else if (event.type === "reminder.failed" && status !== "sent") status = "failed";
+    else if (event.type === "reminder.skipped_no_email" && status === "pending") status = "no_email";
+  }
+  return status;
+}
+
 async function getAdminBookings() {
   const store = await getStoreSnapshot();
   const leadsById = new Map(store.leads.map((lead) => [lead.id, lead]));
@@ -338,7 +349,8 @@ async function getAdminBookings() {
         ...booking,
         customerName,
         customerEmail: lead ? lead.email : client ? client.email : "",
-        customerPhone: client ? client.phone : lead ? lead.phone : ""
+        customerPhone: client ? client.phone : lead ? lead.phone : "",
+        emailStatus: resolveEmailStatus(store, booking.id)
       };
     })
     .sort((a, b) => {

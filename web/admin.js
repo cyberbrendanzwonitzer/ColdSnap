@@ -11,6 +11,9 @@ const statTotal = document.getElementById("stat-total");
 const statConfirmed = document.getElementById("stat-confirmed");
 const statPending = document.getElementById("stat-pending");
 const statLeads = document.getElementById("stat-leads");
+const statEmails = document.getElementById("stat-emails");
+const activityFeed = document.getElementById("activity-feed");
+const activityMessage = document.getElementById("activity-message");
 
 let allBookings = [];
 
@@ -51,9 +54,22 @@ function toTitleCase(value) {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+const EMAIL_STATUS_LABEL = {
+  sent: "Sent",
+  failed: "Failed",
+  no_email: "No Email",
+  pending: "Pending"
+};
+
+function renderEmailBadge(emailStatus) {
+  const label = EMAIL_STATUS_LABEL[emailStatus] || "Pending";
+  const cls = `badge-email-${emailStatus || "pending"}`;
+  return `<span class="badge ${cls}">${escapeHtml(label)}</span>`;
+}
+
 function renderRows(bookings) {
   if (!bookings.length) {
-    bookingsBody.innerHTML = '<tr><td colspan="9" class="empty-row">No appointments match the selected filters.</td></tr>';
+    bookingsBody.innerHTML = '<tr><td colspan="10" class="empty-row">No appointments match the selected filters.</td></tr>';
     return;
   }
 
@@ -71,9 +87,51 @@ function renderRows(bookings) {
         <td>${escapeHtml(booking.provider || "-")}</td>
         <td>${escapeHtml(booking.providerReference || "-")}</td>
         <td>${escapeHtml(formatDate(booking.createdAt))}</td>
+        <td>${renderEmailBadge(booking.emailStatus)}</td>
       </tr>
     `;
   }).join("");
+}
+
+const ACTIVITY_LABELS = {
+  "reminder.sent": "Confirmation email sent",
+  "reminder.failed": "Email delivery failed",
+  "reminder.skipped_no_email": "Email skipped — no address",
+  "booking.intent_created": "Booking intent created",
+  "booking.confirmed": "Booking confirmed",
+  "waiver.signed": "Waiver signed",
+  "client.created": "New client registered",
+  "client.updated": "Client record updated",
+  "lead.created": "New lead captured",
+  "crm.lead_synced": "Lead synced to CRM",
+  "crm.lead_sync_failed": "CRM sync failed"
+};
+
+function activityEventClass(type) {
+  if (type === "reminder.sent") return "activity-email-sent";
+  if (type === "reminder.failed" || type === "crm.lead_sync_failed") return "activity-error";
+  if (type === "booking.confirmed" || type === "waiver.signed") return "activity-good";
+  return "activity-neutral";
+}
+
+function renderActivity(events) {
+  if (!events || !events.length) {
+    activityFeed.innerHTML = '<li class="activity-empty">No recent activity.</li>';
+    activityMessage.textContent = "";
+    return;
+  }
+
+  activityFeed.innerHTML = events.map((event) => {
+    const label = ACTIVITY_LABELS[event.type] || toTitleCase(event.type);
+    const cls = activityEventClass(event.type);
+    const time = escapeHtml(formatDate(event.createdAt));
+    const detail = event.payload && event.payload.error
+      ? `<span class="activity-detail">${escapeHtml(event.payload.error)}</span>`
+      : "";
+    return `<li class="activity-item ${cls}"><span class="activity-dot"></span><span class="activity-body"><span class="activity-label">${escapeHtml(label)}</span>${detail}</span><time class="activity-time">${time}</time></li>`;
+  }).join("");
+
+  activityMessage.textContent = `${events.length} event(s)`;
 }
 
 function applyFilters() {
@@ -129,7 +187,11 @@ async function loadDashboard() {
     statPending.textContent = String(snapshot.bookingsPendingWaiver);
     statLeads.textContent = String(snapshot.leadCount);
 
+    const emailsSent = (snapshot.recentEvents || []).filter((e) => e.type === "reminder.sent").length;
+    statEmails.textContent = String(emailsSent);
+
     applyFilters();
+    renderActivity(snapshot.recentEvents || []);
     setStatusMessage(`Updated ${new Date().toLocaleTimeString()}`);
   } catch (error) {
     setStatusMessage(`Failed to load appointments: ${error.message}`, true);

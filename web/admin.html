@@ -44,6 +44,10 @@
         <h2>Total Leads</h2>
         <p id="stat-leads">0</p>
       </article>
+      <article>
+        <h2>Emails Sent</h2>
+        <p id="stat-emails">0</p>
+      </article>
     </section>
 
     <section class="controls" aria-label="Filter controls">
@@ -79,11 +83,20 @@
               <th>Provider</th>
               <th>Reference</th>
               <th>Created</th>
+              <th>Email</th>
             </tr>
           </thead>
           <tbody id="bookings-body"></tbody>
         </table>
       </div>
+    </section>
+
+    <section class="activity-wrap" aria-label="Recent activity">
+      <div class="activity-header">
+        <h2>Recent Activity</h2>
+        <p id="activity-message" class="status-message"></p>
+      </div>
+      <ul id="activity-feed" class="activity-feed"></ul>
     </section>
   </main>
 </body>

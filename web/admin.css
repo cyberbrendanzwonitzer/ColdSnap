@@ -108,7 +108,7 @@ h3 {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.8rem;
 }
 
@@ -229,6 +229,109 @@ tbody td {
 .badge-unknown {
   color: #6b1f1f;
   background: #f7e1e1;
+}
+
+.badge-email-sent {
+  color: #09573a;
+  background: #dcf7ec;
+}
+
+.badge-email-failed {
+  color: #6b1f1f;
+  background: #f7e1e1;
+}
+
+.badge-email-no_email {
+  color: var(--ink-soft);
+  background: #e8edf2;
+}
+
+.badge-email-pending {
+  color: #7b4f00;
+  background: #ffeecf;
+}
+
+.activity-wrap {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.9rem;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.activity-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.55rem 0.25rem;
+  border-bottom: 1px solid rgba(6, 36, 58, 0.06);
+  font-size: 0.88rem;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.activity-email-sent .activity-dot { background: var(--good); }
+.activity-error .activity-dot { background: var(--bad); }
+.activity-good .activity-dot { background: #0a6f9a; }
+
+.activity-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.activity-label {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.activity-email-sent .activity-label { color: var(--good); }
+.activity-error .activity-label { color: var(--bad); }
+
+.activity-detail {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.activity-time {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+.activity-empty {
+  color: var(--ink-soft);
+  font-style: italic;
+  padding: 0.5rem 0;
 }
 
 @media (max-width: 980px) {
