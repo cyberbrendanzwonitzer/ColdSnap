@@ -1,4 +1,17 @@
+const dns = require("node:dns");
 const nodemailer = require("nodemailer");
+
+function shouldFallbackToResend(error) {
+  const message = String(error && error.message ? error.message : "").toLowerCase();
+  return [
+    "enetunreach",
+    "econnrefused",
+    "etimedout",
+    "connection timeout",
+    "network",
+    "ehostunreach"
+  ].some((pattern) => message.includes(pattern));
+}
 
 function formatServiceName(serviceCode) {
   return String(serviceCode || "session")
@@ -86,8 +99,27 @@ function createGmailReminderClient(config) {
     return createMockReminderClient("gmail-fallback", "Missing GMAIL_USER/GMAIL_APP_PASSWORD or outbound disabled");
   }
 
+  if (config.gmailPreferIpv4) {
+    try {
+      dns.setDefaultResultOrder("ipv4first");
+    } catch (_error) {
+      // Keep running even if runtime does not support this DNS option.
+    }
+  }
+
+  const resendFallbackClient = config.reminderFallbackProvider === "resend"
+    ? createResendReminderClient(config)
+    : null;
+
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: config.gmailHost,
+    port: config.gmailPort,
+    secure: config.gmailSecure,
+    requireTLS: !config.gmailSecure,
+    connectionTimeout: config.gmailConnectionTimeoutMs,
+    greetingTimeout: config.gmailGreetingTimeoutMs,
+    socketTimeout: config.gmailSocketTimeoutMs,
+    family: config.gmailPreferIpv4 ? 4 : 0,
     auth: {
       user: config.gmailUser,
       pass: config.gmailAppPassword
@@ -99,20 +131,35 @@ function createGmailReminderClient(config) {
     reason: "",
     async sendBookingReminder(payload) {
       const message = buildReminderMessage(payload, config);
-      const result = await transporter.sendMail({
-        from: `${config.reminderFromName} <${config.gmailUser}>`,
-        to: payload.toEmail,
-        subject: message.subject,
-        text: message.text,
-        html: message.html
-      });
 
-      return {
-        accepted: true,
-        provider: "gmail",
-        reason: "",
-        messageId: result.messageId || ""
-      };
+      try {
+        const result = await transporter.sendMail({
+          from: `${config.reminderFromName} <${config.gmailUser}>`,
+          to: payload.toEmail,
+          subject: message.subject,
+          text: message.text,
+          html: message.html
+        });
+
+        return {
+          accepted: true,
+          provider: "gmail",
+          reason: "",
+          messageId: result.messageId || ""
+        };
+      } catch (error) {
+        if (resendFallbackClient && shouldFallbackToResend(error)) {
+          const fallbackResult = await resendFallbackClient.sendBookingReminder(payload);
+          return {
+            accepted: true,
+            provider: "resend-fallback",
+            reason: `gmail failed: ${error.message}`,
+            messageId: fallbackResult.messageId || ""
+          };
+        }
+
+        throw error;
+      }
     }
   };
 }
