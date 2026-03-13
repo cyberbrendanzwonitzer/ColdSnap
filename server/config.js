@@ -26,6 +26,7 @@ module.exports = {
   bookingProvider: (process.env.BOOKING_PROVIDER || "mock").toLowerCase(),
   reminderProvider: (process.env.REMINDER_PROVIDER || "mock").toLowerCase(),
   reminderFallbackProvider: (process.env.REMINDER_FALLBACK_PROVIDER || "").toLowerCase(),
+  reminderTrace: toBool(process.env.REMINDER_TRACE, true),
   allowOutboundIntegrations: toBool(process.env.ALLOW_OUTBOUND_INTEGRATIONS, false),
   hubspotToken: process.env.HUBSPOT_ACCESS_TOKEN || "",
   goHighLevelApiKey: process.env.GHL_API_KEY || "",

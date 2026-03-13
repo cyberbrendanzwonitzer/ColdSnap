@@ -13,6 +13,14 @@ function shouldFallbackToResend(error) {
   ].some((pattern) => message.includes(pattern));
 }
 
+function traceLog(config, message, payload = {}) {
+  if (!config || !config.reminderTrace) {
+    return;
+  }
+
+  console.log("[Reminder Trace][Provider]", message, payload);
+}
+
 function formatServiceName(serviceCode) {
   return String(serviceCode || "session")
     .split("-")
@@ -96,14 +104,21 @@ function buildReminderMessage(payload, config) {
 
 function createGmailReminderClient(config) {
   if (!config.allowOutboundIntegrations || !config.gmailUser || !config.gmailAppPassword) {
+    traceLog(config, "gmail.disabled_or_missing_credentials", {
+      allowOutboundIntegrations: config.allowOutboundIntegrations,
+      hasUser: Boolean(config.gmailUser),
+      hasPassword: Boolean(config.gmailAppPassword)
+    });
     return createMockReminderClient("gmail-fallback", "Missing GMAIL_USER/GMAIL_APP_PASSWORD or outbound disabled");
   }
 
   if (config.gmailPreferIpv4) {
     try {
       dns.setDefaultResultOrder("ipv4first");
+      traceLog(config, "gmail.dns_ipv4first_enabled", {});
     } catch (_error) {
       // Keep running even if runtime does not support this DNS option.
+      traceLog(config, "gmail.dns_ipv4first_unavailable", {});
     }
   }
 
@@ -126,11 +141,24 @@ function createGmailReminderClient(config) {
     }
   });
 
+  traceLog(config, "gmail.transport_created", {
+    host: config.gmailHost,
+    port: config.gmailPort,
+    secure: config.gmailSecure,
+    family: config.gmailPreferIpv4 ? 4 : 0,
+    fallbackProvider: config.reminderFallbackProvider || "none"
+  });
+
   return {
     provider: "gmail",
     reason: "",
     async sendBookingReminder(payload) {
       const message = buildReminderMessage(payload, config);
+      traceLog(config, "gmail.send_attempt", {
+        bookingId: payload.booking.id,
+        toEmail: payload.toEmail,
+        subject: message.subject
+      });
 
       try {
         const result = await transporter.sendMail({
@@ -148,8 +176,23 @@ function createGmailReminderClient(config) {
           messageId: result.messageId || ""
         };
       } catch (error) {
+        traceLog(config, "gmail.send_failed", {
+          bookingId: payload.booking.id,
+          toEmail: payload.toEmail,
+          message: error.message
+        });
+
         if (resendFallbackClient && shouldFallbackToResend(error)) {
+          traceLog(config, "gmail.fallback_resend_attempt", {
+            bookingId: payload.booking.id,
+            toEmail: payload.toEmail
+          });
           const fallbackResult = await resendFallbackClient.sendBookingReminder(payload);
+          traceLog(config, "gmail.fallback_resend_success", {
+            bookingId: payload.booking.id,
+            toEmail: payload.toEmail,
+            messageId: fallbackResult.messageId || ""
+          });
           return {
             accepted: true,
             provider: "resend-fallback",
@@ -166,6 +209,11 @@ function createGmailReminderClient(config) {
 
 function createResendReminderClient(config) {
   if (!config.allowOutboundIntegrations || !config.resendApiKey || !config.reminderFromEmail) {
+    traceLog(config, "resend.disabled_or_missing_credentials", {
+      allowOutboundIntegrations: config.allowOutboundIntegrations,
+      hasApiKey: Boolean(config.resendApiKey),
+      hasFromEmail: Boolean(config.reminderFromEmail)
+    });
     return createMockReminderClient("resend-fallback", "Missing RESEND_API_KEY/REMINDER_FROM_EMAIL or outbound disabled");
   }
 
@@ -174,6 +222,11 @@ function createResendReminderClient(config) {
     reason: "",
     async sendBookingReminder(payload) {
       const message = buildReminderMessage(payload, config);
+      traceLog(config, "resend.send_attempt", {
+        bookingId: payload.booking.id,
+        toEmail: payload.toEmail,
+        subject: message.subject
+      });
 
       const response = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -192,10 +245,21 @@ function createResendReminderClient(config) {
 
       if (!response.ok) {
         const message = await response.text();
+        traceLog(config, "resend.send_failed", {
+          bookingId: payload.booking.id,
+          toEmail: payload.toEmail,
+          status: response.status,
+          message
+        });
         throw new Error(`Resend reminder failed: ${message}`);
       }
 
       const data = await response.json();
+      traceLog(config, "resend.send_success", {
+        bookingId: payload.booking.id,
+        toEmail: payload.toEmail,
+        messageId: data.id || ""
+      });
       return {
         accepted: true,
         provider: "resend",
