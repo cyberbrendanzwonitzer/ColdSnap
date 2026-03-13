@@ -41,6 +41,7 @@ The API includes an automatic reminder worker that sends one reminder per confir
 1. Choose provider in `.env`:
 	- `REMINDER_PROVIDER=mock` for local testing (logs only)
 	- `REMINDER_PROVIDER=gmail` to send from a Gmail account
+	- `REMINDER_PROVIDER=gmail_api` to send through Gmail REST API (no SMTP port dependency)
 	- `REMINDER_PROVIDER=resend` for live email delivery
 	- Optional: `REMINDER_FALLBACK_PROVIDER=resend` to auto-fallback if Gmail has network failures
 2. Set scheduling:
@@ -60,7 +61,14 @@ The API includes an automatic reminder worker that sends one reminder per confir
 	- `RESEND_API_KEY=<your_resend_api_key>`
 	- `REMINDER_FROM_EMAIL=<verified_sender@yourdomain.com>`
 	- Optional: `REMINDER_FROM_NAME` and `REMINDER_TIMEZONE`
-5. Deploy/restart the API.
+5. For Gmail API sending, configure:
+	- `ALLOW_OUTBOUND_INTEGRATIONS=true`
+	- `GMAIL_USER=<your gmail address>`
+	- `GMAIL_API_CLIENT_ID=<oauth client id>`
+	- `GMAIL_API_CLIENT_SECRET=<oauth client secret>`
+	- `GMAIL_API_REFRESH_TOKEN=<oauth refresh token with gmail.send scope>`
+	- Optional: `GMAIL_API_REDIRECT_URI` (default is OAuth Playground URI)
+6. Deploy/restart the API.
 
 Verify with:
 

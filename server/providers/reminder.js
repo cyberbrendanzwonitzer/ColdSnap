@@ -1,4 +1,5 @@
 const dns = require("node:dns");
+const { google } = require("googleapis");
 const nodemailer = require("nodemailer");
 
 function shouldFallbackToResend(error) {
@@ -44,6 +45,43 @@ function formatDateForReminder(isoValue, timezone) {
     hour: "numeric",
     minute: "2-digit"
   }).format(date);
+}
+
+function cleanHeader(value) {
+  return String(value || "").replace(/[\r\n]+/g, " ").trim();
+}
+
+function toBase64Url(value) {
+  return Buffer.from(value)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function buildGmailApiRawMessage({ from, to, subject, text, html }) {
+  const boundary = `boundary_${Date.now()}`;
+  const lines = [
+    `From: ${cleanHeader(from)}`,
+    `To: ${cleanHeader(to)}`,
+    `Subject: ${cleanHeader(subject)}`,
+    "MIME-Version: 1.0",
+    `Content-Type: multipart/alternative; boundary=\"${boundary}\"`,
+    "",
+    `--${boundary}`,
+    "Content-Type: text/plain; charset=\"UTF-8\"",
+    "",
+    text || "",
+    "",
+    `--${boundary}`,
+    "Content-Type: text/html; charset=\"UTF-8\"",
+    "",
+    html || "",
+    "",
+    `--${boundary}--`
+  ];
+
+  return toBase64Url(lines.join("\r\n"));
 }
 
 function createMockReminderClient(label, reason = "") {
@@ -259,6 +297,121 @@ function createGmailReminderClient(config) {
   };
 }
 
+function createGmailApiReminderClient(config) {
+  if (
+    !config.allowOutboundIntegrations ||
+    !config.gmailApiClientId ||
+    !config.gmailApiClientSecret ||
+    !config.gmailApiRefreshToken ||
+    !config.gmailUser
+  ) {
+    traceLog(config, "gmail_api.disabled_or_missing_credentials", {
+      allowOutboundIntegrations: config.allowOutboundIntegrations,
+      hasClientId: Boolean(config.gmailApiClientId),
+      hasClientSecret: Boolean(config.gmailApiClientSecret),
+      hasRefreshToken: Boolean(config.gmailApiRefreshToken),
+      hasGmailUser: Boolean(config.gmailUser)
+    });
+
+    return createMockReminderClient("gmail-api-fallback", "Missing Gmail API OAuth config or outbound disabled");
+  }
+
+  const resendFallbackClient = config.reminderFallbackProvider === "resend"
+    ? createResendReminderClient(config)
+    : null;
+
+  const oauth2Client = new google.auth.OAuth2(
+    config.gmailApiClientId,
+    config.gmailApiClientSecret,
+    config.gmailApiRedirectUri
+  );
+
+  oauth2Client.setCredentials({
+    refresh_token: config.gmailApiRefreshToken
+  });
+
+  const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+
+  traceLog(config, "gmail_api.client_created", {
+    gmailUser: config.gmailUser,
+    redirectUri: config.gmailApiRedirectUri,
+    fallbackProvider: config.reminderFallbackProvider || "none"
+  });
+
+  return {
+    provider: "gmail_api",
+    reason: "",
+    async sendBookingReminder(payload) {
+      const message = buildReminderMessage(payload, config);
+      const fromEmail = config.reminderFromEmail || config.gmailUser;
+      const raw = buildGmailApiRawMessage({
+        from: `${config.reminderFromName} <${fromEmail}>`,
+        to: payload.toEmail,
+        subject: message.subject,
+        text: message.text,
+        html: message.html
+      });
+
+      traceLog(config, "gmail_api.send_attempt", {
+        bookingId: payload.booking.id,
+        toEmail: payload.toEmail,
+        subject: message.subject,
+        fromEmail
+      });
+
+      try {
+        const response = await gmail.users.messages.send({
+          userId: "me",
+          requestBody: {
+            raw
+          }
+        });
+
+        const messageId = response && response.data && response.data.id ? response.data.id : "";
+        traceLog(config, "gmail_api.send_success", {
+          bookingId: payload.booking.id,
+          toEmail: payload.toEmail,
+          messageId
+        });
+
+        return {
+          accepted: true,
+          provider: "gmail_api",
+          reason: "",
+          messageId
+        };
+      } catch (error) {
+        traceLog(config, "gmail_api.send_failed", {
+          bookingId: payload.booking.id,
+          toEmail: payload.toEmail,
+          message: error.message
+        });
+
+        if (resendFallbackClient) {
+          traceLog(config, "gmail_api.fallback_resend_attempt", {
+            bookingId: payload.booking.id,
+            toEmail: payload.toEmail
+          });
+          const fallbackResult = await resendFallbackClient.sendBookingReminder(payload);
+          traceLog(config, "gmail_api.fallback_resend_success", {
+            bookingId: payload.booking.id,
+            toEmail: payload.toEmail,
+            messageId: fallbackResult.messageId || ""
+          });
+          return {
+            accepted: true,
+            provider: "resend-fallback",
+            reason: `gmail_api failed: ${error.message}`,
+            messageId: fallbackResult.messageId || ""
+          };
+        }
+
+        throw error;
+      }
+    }
+  };
+}
+
 function createResendReminderClient(config) {
   if (!config.allowOutboundIntegrations || !config.resendApiKey || !config.reminderFromEmail) {
     traceLog(config, "resend.disabled_or_missing_credentials", {
@@ -325,6 +478,10 @@ function createResendReminderClient(config) {
 function createReminderClient(provider, config) {
   if (provider === "gmail") {
     return createGmailReminderClient(config);
+  }
+
+  if (provider === "gmail_api") {
+    return createGmailApiReminderClient(config);
   }
 
   if (provider === "resend") {
